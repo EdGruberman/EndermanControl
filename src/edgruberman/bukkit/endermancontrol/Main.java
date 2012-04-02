@@ -3,6 +3,7 @@ package edgruberman.bukkit.endermancontrol;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 
+import org.bukkit.World.Environment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -36,13 +37,18 @@ public final class Main extends JavaPlugin implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onEntityChangeBlock(final EntityChangeBlockEvent change) {
+        // Allow anything but an Enderman to change a block
         if (change.getEntityType() != EntityType.ENDERMAN) return;
 
+        // Allow Endermen to change blocks in The End
+        if (change.getEntity().getWorld().getEnvironment() == Environment.THE_END) return;
+
         if (this.getLogger().isLoggable(Level.FINER))
-            this.getLogger().log(Level.FINER, "Denying Enderman changing block"
+            this.getLogger().log(Level.FINER, "Cancelling Enderman changing block"
                     + " from " + change.getBlock().getType().name()
                     + " to " + change.getTo().name()
-                    + " at"
+                    + " in [" + change.getEntity().getWorld().getName() + "]"
+                    + " at "
                     + " x:" + change.getBlock().getX()
                     + " y:" + change.getBlock().getY()
                     + " z:" + change.getBlock().getZ()
