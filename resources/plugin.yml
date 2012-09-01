@@ -1,5 +1,5 @@
-name: @NAME@
-description: Prevents Endermen from picking up or placing any blocks
+name: EndermanControl
 version: @VERSION@
-author: @AUTHOR@
+description: Prevents Endermen from picking up or placing any blocks
+author: EdGruberman (ed@rjump.com)
 main: edgruberman.bukkit.endermancontrol.Main

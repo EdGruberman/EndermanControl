@@ -14,45 +14,36 @@ public final class Main extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-        this.setLoggingLevel();
+        this.setLogLevel(this.getConfig().getString("logLevel"));
         this.getServer().getPluginManager().registerEvents(this, this);
     }
 
-    private void setLoggingLevel() {
-        this.reloadConfig();
-        final String name = this.getConfig().getString("logLevel", "INFO");
+    public void setLogLevel(final String name) {
         Level level;
         try { level = Level.parse(name); } catch (final Exception e) {
             level = Level.INFO;
-            this.getLogger().warning("Unrecognized java.util.logging.Level in \"" + this.getDataFolder().getPath() + "\\config.yml\"; logLevel: " + name);
+            this.getLogger().warning("Log level defaulted to " + level.getName() + "; Unrecognized java.util.logging.Level: " + name + "; " + e);
         }
 
-        // Only set the parent handler lower if necessary, otherwise leave it alone for other configurations that have set it.
+        // only set the parent handler lower if necessary, otherwise leave it alone for other configurations that have set it
         for (final Handler h : this.getLogger().getParent().getHandlers())
             if (h.getLevel().intValue() > level.intValue()) h.setLevel(level);
 
         this.getLogger().setLevel(level);
-        this.getLogger().log(Level.CONFIG, "Logging level set to: " + this.getLogger().getLevel());
+        this.getLogger().log(Level.CONFIG, "Log level set to: {0} ({1,number,#})"
+                , new Object[] { this.getLogger().getLevel(), this.getLogger().getLevel().intValue() });
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onEntityChangeBlock(final EntityChangeBlockEvent change) {
-        // Allow anything but an Enderman to change a block
+        // allow anything but an Enderman to change a block
         if (change.getEntityType() != EntityType.ENDERMAN) return;
 
-        // Allow Endermen to change blocks in The End
+        // allow Endermen to change blocks in The End
         if (change.getEntity().getWorld().getEnvironment() == Environment.THE_END) return;
 
-        if (this.getLogger().isLoggable(Level.FINER))
-            this.getLogger().log(Level.FINER, "Cancelling Enderman changing block"
-                    + " from " + change.getBlock().getType().name()
-                    + " to " + change.getTo().name()
-                    + " in [" + change.getEntity().getWorld().getName() + "]"
-                    + " at "
-                    + " x:" + change.getBlock().getX()
-                    + " y:" + change.getBlock().getY()
-                    + " z:" + change.getBlock().getZ()
-            );
+        this.getLogger().log(Level.FINER, "Cancelling Enderman changing block from {0} to {1} at {2}"
+                , new Object[] { change.getBlock().getType().name(), change.getTo().name(), change.getBlock() });
 
         change.setCancelled(true);
     }
